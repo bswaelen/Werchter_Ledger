@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Werchter '25 Ledger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <div id="app" class="max-w-md mx-auto p-4 min-h-screen">
+        <!-- Header -->
+        <header class="text-center py-6">
+            <h1 class="text-4xl font-bold text-yellow-400">Werchter '25</h1>
+            <p class="text-gray-400">Drink Ledger</p>
+            <button id="admin-btn" class="mt-2 text-sm text-gray-400 hover:text-yellow-400 transition-colors">
+                Admin
+            </button>
+        </header>
+
+        <!-- Main Content: Member Status Board -->
+        <main id="member-board" class="space-y-3">
+            <!-- Members will be dynamically inserted here -->
+        </main>
+
+        <!-- Footer with Action Button -->
+        <footer class="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 bg-opacity-80 backdrop-blur-sm">
+            <div class="max-w-md mx-auto">
+                <button id="log-purchase-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-4 rounded-xl shadow-lg transition-transform transform hover:scale-105">
+                    Log a Purchase
+                </button>
+            </div>
+        </footer>
+
+        <!-- Spacer to prevent content from being hidden behind the footer -->
+        <div class="h-24"></div>
+    </div>
+
+    <!-- Admin Password Modal -->
+    <div id="admin-password-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-center mb-6">Admin Access</h3>
+                <div class="mb-6">
+                    <label for="admin-password" class="block text-sm font-medium text-gray-400 mb-2">Enter Admin Password</label>
+                    <input type="password" id="admin-password" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
+                </div>
+            </div>
+            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex space-x-3">
+                <button id="admin-cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Cancel</button>
+                <button id="admin-confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">Access Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-center mb-6">Admin Panel</h3>
+                
+                <!-- Member Management -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold mb-3">Manage Members</h4>
+                    <div id="members-list" class="space-y-2">
+                        <!-- Members will be listed here -->
+                    </div>
+                    <button id="add-member-btn" class="mt-3 w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition">
+                        Add New Member
+                    </button>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold mb-3">Transaction History</h4>
+                    <div id="transactions-list" class="max-h-48 overflow-y-auto space-y-2">
+                        <!-- Transactions will be listed here -->
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl">
+                <button id="admin-panel-close-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div id="add-member-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-center mb-6">Add New Member</h3>
+                
+                <div class="mb-6">
+                    <label for="new-member-name" class="block text-sm font-medium text-gray-400 mb-2">Name</label>
+                    <input type="text" id="new-member-name" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
+                </div>
+
+                <div class="mb-6">
+                    <label for="new-member-role" class="block text-sm font-medium text-gray-400 mb-2">Role</label>
+                    <select id="new-member-role" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
+                        <option value="Core">Core Member</option>
+                        <option value="Guest">Guest</option>
+                        <option value="1-Day">1-Day Visitor</option>
+                        <option value="2-Day">2-Day Visitor</option>
+                        <option value="3-Day">3-Day Visitor</option>
+                        <option value="4-Day">4-Day Visitor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex space-x-3">
+                <button id="add-member-cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Cancel</button>
+                <button id="add-member-confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">Add Member</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settle Account Modal -->
+    <div id="settle-account-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-center mb-6">Settle Account</h3>
+                
+                <div class="mb-6">
+                    <p class="text-gray-400 mb-4">This will mark all transactions for this member as settled and remove them from the active ledger.</p>
+                    <p class="font-medium" id="settle-member-name"></p>
+                    <p class="text-sm text-gray-400" id="settle-member-balance"></p>
+                </div>
+            </div>
+            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex space-x-3">
+                <button id="settle-account-cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Cancel</button>
+                <button id="settle-account-confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">Settle Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Logging a Purchase -->
+    <div id="purchase-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-center mb-6">New Round</h3>
+                
+                <!-- Payer Selection -->
+                <div class="mb-6">
+                    <label for="payer" class="block text-sm font-medium text-gray-400 mb-2">Who is paying?</label>
+                    <select id="payer" name="payer" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
+                        <!-- Payer options will be dynamically inserted here -->
+                    </select>
+                </div>
+                
+                <!-- Quantity -->
+                <div class="mb-6">
+                    <label for="quantity" class="block text-sm font-medium text-gray-400 mb-2">How many drinks per person?</label>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 text-center text-lg focus:ring-yellow-400 focus:border-yellow-400">
+                </div>
+
+                <!-- Recipients Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Who got a drink?</label>
+                    <div id="recipients-list" class="modal-content max-h-48 overflow-y-auto space-y-2 p-3 bg-gray-900 rounded-lg">
+                        <!-- Recipient checkboxes will be dynamically inserted here -->
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Modal Actions -->
+            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex space-x-3">
+                <button id="cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Cancel</button>
+                <button id="confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">Confirm Purchase</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAORWEOq8PAVA-GMywLZpl-SqBoPa7KzBI",
+            authDomain: "werchter-ledger.firebaseapp.com",
+            projectId: "werchter-ledger",
+            storageBucket: "werchter-ledger.firebasestorage.app",
+            messagingSenderId: "327978781720",
+            appId: "1:327978781720:web:ba7774b24426b9aebd476d"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Export Firebase functionality
+        window.initializeFirebase = async () => {
+            return {
+                db,
+                collection,
+                onSnapshot,
+                addDoc
+            };
+        };
+    </script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>

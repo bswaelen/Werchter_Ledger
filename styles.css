@@ -1,0 +1,21 @@
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Style for the custom scrollbar */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #2d3748; /* gray-800 */
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #4a5568; /* gray-600 */
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #718096; /* gray-500 */
+} 
