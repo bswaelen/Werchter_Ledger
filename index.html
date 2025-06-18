@@ -24,12 +24,14 @@
         <main id="member-board" class="space-y-3">
             <!-- Members will be dynamically inserted here -->
         </main>
-
+        <div id="total-pints-counter" class="flex items-center justify-center my-6 text-3xl font-bold text-yellow-400 space-x-3">
+            <!-- Hier komt de teller -->
+        </div>
         <!-- Footer with Action Button -->
         <footer class="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 bg-opacity-80 backdrop-blur-sm">
             <div class="max-w-md mx-auto">
                 <button id="log-purchase-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-4 rounded-xl shadow-lg transition-transform transform hover:scale-105">
-                    Log a Purchase
+                    Pinten, graaf!
                 </button>
             </div>
         </footer>
@@ -82,6 +84,7 @@
             </div>
             <div class="bg-gray-700 px-6 py-4 rounded-b-2xl">
                 <button id="admin-panel-close-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Close</button>
+                <button id="reset-balances-btn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition mt-3">Reset alle saldi</button>
             </div>
         </div>
     </div>
@@ -102,10 +105,6 @@
                     <select id="new-member-role" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
                         <option value="Core">Core Member</option>
                         <option value="Guest">Guest</option>
-                        <option value="1-Day">1-Day Visitor</option>
-                        <option value="2-Day">2-Day Visitor</option>
-                        <option value="3-Day">3-Day Visitor</option>
-                        <option value="4-Day">4-Day Visitor</option>
                     </select>
                 </div>
             </div>
@@ -116,34 +115,15 @@
         </div>
     </div>
 
-    <!-- Settle Account Modal -->
-    <div id="settle-account-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
-            <div class="p-6">
-                <h3 class="text-2xl font-bold text-center mb-6">Settle Account</h3>
-                
-                <div class="mb-6">
-                    <p class="text-gray-400 mb-4">This will mark all transactions for this member as settled and remove them from the active ledger.</p>
-                    <p class="font-medium" id="settle-member-name"></p>
-                    <p class="text-sm text-gray-400" id="settle-member-balance"></p>
-                </div>
-            </div>
-            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex space-x-3">
-                <button id="settle-account-cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Cancel</button>
-                <button id="settle-account-confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">Settle Account</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal for Logging a Purchase -->
     <div id="purchase-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
             <div class="p-6">
-                <h3 class="text-2xl font-bold text-center mb-6">New Round</h3>
+                <h3 class="text-2xl font-bold text-center mb-6">Nieuw rondje</h3>
                 
                 <!-- Payer Selection -->
                 <div class="mb-6">
-                    <label for="payer" class="block text-sm font-medium text-gray-400 mb-2">Who is paying?</label>
+                    <label for="payer" class="block text-sm font-medium text-gray-400 mb-2">Wie betaalt?</label>
                     <select id="payer" name="payer" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
                         <!-- Payer options will be dynamically inserted here -->
                     </select>
@@ -151,13 +131,15 @@
                 
                 <!-- Quantity -->
                 <div class="mb-6">
-                    <label for="quantity" class="block text-sm font-medium text-gray-400 mb-2">How many drinks per person?</label>
-                    <input type="number" id="quantity" name="quantity" value="1" min="1" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 text-center text-lg focus:ring-yellow-400 focus:border-yellow-400">
+                    <label for="quantity" class="block text-sm font-medium text-gray-400 mb-2">Aantal bekers</label>
+                    <select id="quantity" name="quantity" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 text-center text-lg focus:ring-yellow-400 focus:border-yellow-400">
+                        <!-- Opties 1 t/m 20 -->
+                    </select>
                 </div>
 
                 <!-- Recipients Selection -->
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Who got a drink?</label>
+                    <label for="recipients-list" class="block text-sm font-medium text-gray-400 mb-2">Voor wie?</label>
                     <div id="recipients-list" class="modal-content max-h-48 overflow-y-auto space-y-2 p-3 bg-gray-900 rounded-lg">
                         <!-- Recipient checkboxes will be dynamically inserted here -->
                     </div>
@@ -168,7 +150,7 @@
             <!-- Modal Actions -->
             <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex space-x-3">
                 <button id="cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Cancel</button>
-                <button id="confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">Confirm Purchase</button>
+                <button id="confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">En gaan!</button>
             </div>
         </div>
     </div>
@@ -176,7 +158,7 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, getDocs, doc, deleteDoc, updateDoc, where, query } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -198,7 +180,13 @@
                 db,
                 collection,
                 onSnapshot,
-                addDoc
+                addDoc,
+                getDocs,
+                doc,
+                deleteDoc,
+                updateDoc,
+                where,
+                query
             };
         };
     </script>
