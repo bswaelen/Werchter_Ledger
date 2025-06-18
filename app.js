@@ -146,9 +146,9 @@ function createMemberCard(member) {
         Balanced: '⚖️'
     };
     const statusText = {
-        Giver: `Gulle gever (${status.net.toFixed(1)})`,
+        Giver: `${status.net > 5 ? 'Gulle gever' : 'Gever'} (${status.net.toFixed(1)})`,
         Receiver: `Ontvanger (${status.net.toFixed(1)})`,
-        Balanced: 'Perfect in balans (0)'
+        Balanced: 'In balans (0)'
     };
 
     card.className = 'bg-gray-800 rounded-xl p-4 shadow-lg';
@@ -163,7 +163,7 @@ function createMemberCard(member) {
                 </div>
             </div>
             <div class="text-right">
-                <div class="text-sm flex items-center space-x-2">
+                <div class="flex flex-nowrap items-center justify-end space-x-1 text-sm sm:text-base">
                     <span class="text-green-400">💸 ${status.bought}</span>
                     <span class="text-yellow-400 flex items-center"><span class="text-xl">🥤</span> ${(status.coins).toFixed(1)} coins</span>
                     <span class="text-red-400 ml-2">🍺 ${status.received}</span>
