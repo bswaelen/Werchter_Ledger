@@ -1,32 +1,53 @@
 # Werchter Ledger
 
-A real-time drink tracking application for the Werchter Festival 2025. This web application helps groups keep track of who bought drinks for whom during the festival.
+Een real-time drankjes- en leeggoedtracker voor Werchter Festival 2025. Deze webapplicatie helpt groepen eenvoudig bijhouden wie voor wie een rondje heeft gegeven, en wie het meeste leeggoed heeft ingeleverd.
 
-## Features
+## Functionaliteiten
 
-- Real-time synchronization using Firebase
-- Track drinks bought and received for each group member
-- Admin panel for member management
-- Support for different member types (Core, Guest, Day Visitors)
-- Responsive design for mobile and desktop use
+- **Realtime synchronisatie** via Firebase: alle gebruikers zien direct dezelfde stand.
+- **Saldo per gebruiker**: wie is gever, ontvanger of in balans? (met duidelijke emoji's)
+- **Pinten counter**: totaal aantal bestelde drankjes onderaan het scherm.
+- **Coins/leeggoed**: per gebruiker wordt bijgehouden hoeveel bekers (leeggoed) zijn ingeleverd en hoeveel coins dat oplevert (0,2 coin per beker).
+- **Alleen Core Members en Guests**: geen dagbezoekers meer, alleen vaste leden en gasten.
+- **Responsive design**: werkt perfect op mobiel en desktop.
+- **Admin-panel**:
+  - Leden toevoegen/verwijderen
+  - Saldo's resetten (alle transacties wissen)
+  - Beheer van alle leden en transacties
+- **Gebruiksvriendelijke UI**:
+  - Grote knoppen voor selectie
+  - Emoji's voor status (🎉 Gever, 🛑 Ontvanger, ⚖️ In balans)
+  - Duidelijke counters voor drankjes en coins
 
-## Setup
+## Gebruik
 
-1. Clone the repository
-2. Open `index.html` in a web browser
-3. For local development, you can use Python's built-in HTTP server:
+### Voor gebruikers
+- Klik op **Pinten, graaf!** om een nieuw rondje te loggen.
+- Selecteer wie betaalt, het aantal bekers (leeggoed), en voor wie het rondje is.
+- Je saldo, aantal bestelde pinten en verdiende coins worden automatisch bijgewerkt.
+
+### Voor admins
+- Klik op **Admin** en voer het wachtwoord in.
+- Voeg leden toe of verwijder ze.
+- Gebruik de knop **Reset alle saldi** om alle transacties te wissen (iedereen weer op 0).
+
+## Installatie & lokaal testen
+
+1. Clone deze repository
+2. Open `index.html` in je browser
+3. Voor lokale ontwikkeling kun je een eenvoudige webserver gebruiken:
    ```bash
    python -m http.server 8000
    ```
-   Then visit `http://localhost:8000` in your browser
+   Ga dan naar `http://localhost:8000`
 
-## Technologies Used
+## Gebruikte technologieën
 
 - HTML5
-- CSS3 (with Tailwind CSS)
+- CSS3 (Tailwind CSS)
 - JavaScript
-- Firebase (for real-time data synchronization)
+- Firebase (Realtime database)
 
-## License
+## Licentie
 
 MIT License 
