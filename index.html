@@ -13,11 +13,7 @@
     <div id="app" class="max-w-md mx-auto p-4 min-h-screen">
         <!-- Header -->
         <header class="text-center py-6">
-            <h1 class="text-4xl font-bold text-yellow-400">Werchter '25</h1>
-            <p class="text-gray-400">Drink Ledger</p>
-            <button id="admin-btn" class="mt-2 text-sm text-gray-400 hover:text-yellow-400 transition-colors">
-                Admin
-            </button>
+            <img src="assets/Rock Werchter white logo.png" alt="Werchter Logo" class="mx-auto w-64 sm:w-80 mb-3" />
         </header>
 
         <!-- Main Content: Member Status Board -->
@@ -27,10 +23,15 @@
         <div id="total-pints-counter" class="flex items-center justify-center my-6 text-3xl font-bold text-yellow-400 space-x-3">
             <!-- Hier komt de teller -->
         </div>
+        <div class="max-w-md mx-auto mb-4">
+            <button id="admin-btn" class="w-full bg-gray-700 hover:bg-yellow-400 text-white hover:text-gray-900 font-bold py-3 px-4 rounded-lg transition border-2 border-gray-600 hover:border-yellow-400">
+                Admin
+            </button>
+        </div>
         <!-- Footer with Action Button -->
         <footer class="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 bg-opacity-80 backdrop-blur-sm">
             <div class="max-w-md mx-auto">
-                <button id="log-purchase-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-4 rounded-xl shadow-lg transition-transform transform hover:scale-105">
+                <button id="log-purchase-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-4 rounded-xl shadow-lg transition-transform transform hover:scale-105 mb-2">
                     Pinten, graaf!
                 </button>
             </div>
@@ -75,12 +76,6 @@
                 </div>
 
                 <!-- Transaction History -->
-                <div class="mb-6">
-                    <h4 class="text-lg font-semibold mb-3">Transaction History</h4>
-                    <div id="transactions-list" class="max-h-48 overflow-y-auto space-y-2">
-                        <!-- Transactions will be listed here -->
-                    </div>
-                </div>
             </div>
             <div class="bg-gray-700 px-6 py-4 rounded-b-2xl">
                 <button id="admin-panel-close-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Close</button>
@@ -148,9 +143,10 @@
             </div>
             
             <!-- Modal Actions -->
-            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex space-x-3">
-                <button id="cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Cancel</button>
-                <button id="confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">En gaan!</button>
+            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex flex-col space-y-2">
+                <button id="cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition mb-1">Cancel</button>
+                <button id="confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition mb-1">En gaan!</button>
+                <button id="extra-btn" class="w-full bg-blue-300 hover:bg-blue-400 text-blue-900 font-bold py-3 px-4 rounded-lg transition">Enkel leeggoed</button>
             </div>
         </div>
     </div>

@@ -17,22 +17,30 @@ const ADMIN_PASSWORD = 'werchter2025';
 // --- 1. STATE MANAGEMENT ---
 let db, collection, onSnapshot, addDoc, getDocs, doc, deleteDoc, query, where, updateDoc;
 
+let membersLoaded = false;
+let transactionsLoaded = false;
+
+function tryRenderTransactionsList() {
+    console.log('tryRenderTransactionsList called', { membersLoaded, transactionsLoaded });
+    if (membersLoaded && transactionsLoaded) {
+        console.log('Beide geladen, renderTransactionsList wordt aangeroepen');
+        renderTransactionsList();
+    }
+}
+
 // --- 2. FIREBASE INTEGRATION ---
 async function setupFirebaseListeners() {
     try {
         // Listen for members changes
         const membersRef = collection(db, 'members');
         onSnapshot(membersRef, (snapshot) => {
-            // Clear the members array before updating
             members = [];
-            // Add each member only once
             snapshot.docs.forEach(doc => {
                 members.push({
                     id: doc.id,
                     ...doc.data()
                 });
             });
-            console.log("Members updated from Firebase:", members);
             renderMemberBoard();
             if (!document.getElementById('admin-panel-modal').classList.contains('hidden')) {
                 renderAdminMembersList();
@@ -43,16 +51,13 @@ async function setupFirebaseListeners() {
         // Listen for transactions changes
         const transactionsRef = collection(db, 'transactions');
         onSnapshot(transactionsRef, (snapshot) => {
-            // Clear the transactions array before updating
             transactions = [];
-            // Add each transaction only once
             snapshot.docs.forEach(doc => {
                 transactions.push({
                     id: doc.id,
                     ...doc.data()
                 });
             });
-            console.log("Transactions updated:", transactions);
             renderMemberBoard();
             updateTotalPintsCounter();
         });
@@ -77,6 +82,13 @@ function calculateStatus(memberId) {
     let totalCups = 0;
 
     transactions.forEach(transaction => {
+        // Leeggoed-transacties: alleen coins voor payer
+        if (transaction.type === 'leeggoed') {
+            if (transaction.payer === memberId) {
+                totalCups += transaction.quantity;
+            }
+            return; // niet meetellen in bought/received
+        }
         // Alleen drinks gekocht voor anderen tellen mee (1 per ontvanger)
         if (transaction.payer === memberId) {
             bought += transaction.recipients.filter(r => r !== memberId).length;
@@ -269,9 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
         hideModal('purchase-modal');
     });
 
-    document.getElementById('confirm-btn').addEventListener('click', handlePurchase);
-
-    // Admin Panel Event Listeners
     document.getElementById('admin-btn').addEventListener('click', () => {
         showModal('admin-password-modal');
     });
@@ -414,6 +423,7 @@ async function handleAddMember() {
     }
 }
 
+// handlePurchase: minstens 1 ontvanger vereist
 async function handlePurchase() {
     const payerSelect = document.getElementById('payer');
     const payer = payerSelect ? payerSelect.value : '';
@@ -441,9 +451,85 @@ async function handlePurchase() {
         };
         await saveTransactionToFirebase(newTransaction);
         hideModal('purchase-modal');
+        console.log('Transactie succesvol opgeslagen via:', event && event.target && event.target.id);
     } catch (error) {
         console.error('Error saving transaction:', error);
         alert('Er is een fout opgetreden bij het opslaan van de transactie.');
+    }
+}
+
+function handleLeeggoed() {
+    const payerSelect = document.getElementById('payer');
+    const payer = payerSelect ? payerSelect.value : '';
+    const quantityInput = document.getElementById('quantity');
+    const quantity = quantityInput ? parseInt(quantityInput.value, 10) : 1;
+    const recipientsList = document.getElementById('recipients-list');
+    const selectedBtns = recipientsList ? recipientsList.querySelectorAll('.recipient-btn.bg-yellow-400') : [];
+
+    if (quantity > 0 && selectedBtns.length === 0) {
+        try {
+            const leeggoedTransaction = {
+                payer,
+                recipients: [],
+                quantity,
+                timestamp: Date.now(),
+                type: 'leeggoed'
+            };
+            saveTransactionToFirebase(leeggoedTransaction).then(() => {
+                hideModal('purchase-modal');
+            }).catch(() => {
+                alert('Er is een fout opgetreden bij het opslaan van de leeggoed-transactie.');
+            });
+        } catch (error) {
+            alert('Er is een fout opgetreden bij het opslaan van de leeggoed-transactie.');
+        }
+    } else {
+        alert('leeggoed enkel zonder ontvangers');
+    }
+}
+
+// Open purchase modal: reset aantal per persoon en populate lists
+function openPurchaseModal() {
+    showModal('purchase-modal');
+    const quantitySelect = document.getElementById('quantity');
+    quantitySelect.innerHTML = '';
+    for (let i = 0; i <= 20; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        quantitySelect.appendChild(option);
+    }
+    quantitySelect.value = 0;
+    populatePayerDropdown();
+    populateRecipientsList();
+    document.getElementById('confirm-btn').onclick = handlePurchase;
+    document.getElementById('extra-btn').onclick = handleLeeggoed;
+}
+
+// Pas de pinten counter aan: alleen aantal ontvangers per transactie telt
+function updateTotalPintsCounter() {
+    let total = 0;
+    transactions.forEach(tx => {
+        total += tx.recipients.length;
+    });
+    const counterDiv = document.getElementById('total-pints-counter');
+    if (counterDiv) {
+        counterDiv.innerHTML = `<span class='text-5xl'>🍺</span><span>${total}</span>`;
+    }
+}
+
+// Reset alle transacties (en dus alle saldi en de counter)
+async function resetAllBalances() {
+    if (!confirm('Weet je zeker dat je alle transacties wilt verwijderen? Dit kan niet ongedaan worden gemaakt.')) return;
+    try {
+        const transactionsRef = collection(db, 'transactions');
+        const snapshot = await getDocs(transactionsRef);
+        const deletePromises = snapshot.docs.map(docSnap => deleteDoc(doc(db, 'transactions', docSnap.id)));
+        await Promise.all(deletePromises);
+        alert('Alle transacties zijn verwijderd. Iedereen staat weer op 0.');
+    } catch (error) {
+        console.error('Fout bij resetten transacties:', error);
+        alert('Er is iets misgegaan bij het resetten. Probeer opnieuw.');
     }
 }
 
@@ -629,28 +715,6 @@ async function saveTransactionToFirebase(transaction) {
     }
 }
 
-// Migratie: Zet alle dagbezoekers om naar 'Guest'
-async function migrateDayVisitorsToGuests() {
-    try {
-        const membersRef = collection(db, 'members');
-        const snapshot = await getDocs(membersRef);
-        for (const docSnap of snapshot.docs) {
-            const member = docSnap.data();
-            if (member.role && (member.role.includes('Day') || member.role.match(/\d-Day/))) {
-                await updateMemberRole(docSnap.id, 'Guest');
-                console.log(`Lid ${member.name} omgezet naar Guest`);
-            }
-        }
-    } catch (error) {
-        console.error('Fout bij migratie dagbezoekers:', error);
-    }
-}
-
-async function updateMemberRole(memberId, newRole) {
-    const memberRef = doc(db, 'members', memberId);
-    await updateDoc(memberRef, { role: newRole });
-}
-
 // Initialize the app
 async function initializeApp() {
     try {
@@ -701,8 +765,6 @@ async function initializeApp() {
             hideModal('purchase-modal');
         });
 
-        document.getElementById('confirm-btn').addEventListener('click', handlePurchase);
-
     } catch (error) {
         console.error('Error initializing app:', error);
     }
@@ -711,48 +773,4 @@ async function initializeApp() {
 // Start the app when the DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
     await initializeApp();
-    await migrateDayVisitorsToGuests();
 });
-
-// Open purchase modal: reset aantal per persoon en populate lists
-function openPurchaseModal() {
-    showModal('purchase-modal');
-    const quantitySelect = document.getElementById('quantity');
-    quantitySelect.innerHTML = '';
-    for (let i = 0; i <= 20; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = i;
-        quantitySelect.appendChild(option);
-    }
-    quantitySelect.value = 0;
-    populatePayerDropdown();
-    populateRecipientsList();
-}
-
-// Pas de pinten counter aan: alleen aantal ontvangers per transactie telt
-function updateTotalPintsCounter() {
-    let total = 0;
-    transactions.forEach(tx => {
-        total += tx.recipients.length;
-    });
-    const counterDiv = document.getElementById('total-pints-counter');
-    if (counterDiv) {
-        counterDiv.innerHTML = `<span class='text-5xl'>🍺</span><span>${total}</span>`;
-    }
-}
-
-// Reset alle transacties (en dus alle saldi en de counter)
-async function resetAllBalances() {
-    if (!confirm('Weet je zeker dat je alle transacties wilt verwijderen? Dit kan niet ongedaan worden gemaakt.')) return;
-    try {
-        const transactionsRef = collection(db, 'transactions');
-        const snapshot = await getDocs(transactionsRef);
-        const deletePromises = snapshot.docs.map(docSnap => deleteDoc(doc(db, 'transactions', docSnap.id)));
-        await Promise.all(deletePromises);
-        alert('Alle transacties zijn verwijderd. Iedereen staat weer op 0.');
-    } catch (error) {
-        console.error('Fout bij resetten transacties:', error);
-        alert('Er is iets misgegaan bij het resetten. Probeer opnieuw.');
-    }
-}
