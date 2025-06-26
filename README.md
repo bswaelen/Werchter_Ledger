@@ -18,12 +18,28 @@ Een real-time drankjes- en leeggoedtracker voor Werchter Festival 2025. Deze web
   - Grote knoppen voor selectie
   - Emoji's voor status (🎉 Gever, 🛑 Ontvanger, ⚖️ In balans)
   - Duidelijke counters voor drankjes en coins
+  - **Twee actieknoppen in de aankoop-modal:**
+    - **En gaan!** (gele knop): voor het loggen van een normaal rondje (minstens één ontvanger vereist)
+    - **Enkel leeggoed** (lichtblauwe knop): voor het inleveren van alleen leeggoed (géén ontvangers, alleen bekers > 0)
+
+## Belangrijkste updates
+
+- **Dubbele event handler issues opgelost:**
+  - Er wordt nu per knop ("En gaan!" en "Enkel leeggoed") slechts één event handler gekoppeld, alleen wanneer de modal wordt geopend.
+  - Dit voorkomt dubbele transacties of dubbele alerts bij één klik.
+- **Code opgeschoond:**
+  - Geen dubbele bindingen meer in `DOMContentLoaded` of `initializeApp`.
+  - De logica is nu overzichtelijk en robuust.
+- **Styling:**
+  - De knop "Enkel leeggoed" is nu lichtblauw (`bg-blue-300 hover:bg-blue-400 text-blue-900`) en staat onder de gele "En gaan!" knop.
 
 ## Gebruik
 
 ### Voor gebruikers
 - Klik op **Pinten, graaf!** om een nieuw rondje te loggen.
 - Selecteer wie betaalt, het aantal bekers (leeggoed), en voor wie het rondje is.
+- Gebruik **En gaan!** voor een normaal rondje (minstens één ontvanger).
+- Gebruik **Enkel leeggoed** als je alleen bekers inlevert (géén ontvangers, aantal bekers > 0).
 - Je saldo, aantal bestelde pinten en verdiende coins worden automatisch bijgewerkt.
 
 ### Voor admins
