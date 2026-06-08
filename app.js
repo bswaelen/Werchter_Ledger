@@ -5,6 +5,13 @@ const ADMIN_PASSWORD = 'werchter2026';
 
 let transactions = [];
 let members = [];
+let previousDrinkTotal = null;
+
+const FIREWORK_COLORS = ['#FBBF24', '#EF4444', '#10B981', '#3B82F6', '#F472B6', '#A78BFA'];
+let fireworksParticles = [];
+let fireworksAnimationId = null;
+let fireworksBurstTimer = null;
+let fireworksBurstCount = 0;
 
 // --- 2. STATE & DOM CACHE ---
 let db, collection, onSnapshot, addDoc, getDocs, getDoc, setDoc, doc, deleteDoc, query, where;
@@ -276,10 +283,126 @@ function renderAdminPanel() {
     }).join('');
 }
 
+function getTotalDrinks() {
+    return transactions.reduce((sum, tx) => sum + (tx.type !== 'leeggoed' ? tx.recipients.length : 0), 0);
+}
+
+function checkDrinkMilestone(total) {
+    if (previousDrinkTotal === null) {
+        previousDrinkTotal = total;
+        return;
+    }
+
+    const prevMilestone = Math.floor(previousDrinkTotal / 100);
+    const currMilestone = Math.floor(total / 100);
+
+    if (total >= 100 && currMilestone > prevMilestone) {
+        launchFireworks(currMilestone * 100);
+    }
+
+    previousDrinkTotal = total;
+}
+
+function resizeFireworksCanvas(canvas) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function createFireworkBurst(canvas, particles) {
+    const x = canvas.width * (0.2 + Math.random() * 0.6);
+    const y = canvas.height * (0.15 + Math.random() * 0.35);
+    const color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
+
+    for (let i = 0; i < 45; i++) {
+        const angle = (Math.PI * 2 * i) / 45 + (Math.random() - 0.5) * 0.3;
+        const speed = 2 + Math.random() * 5;
+        particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            alpha: 1,
+            color,
+            size: 2 + Math.random() * 2
+        });
+    }
+}
+
+function animateFireworks(canvas, ctx, particles) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    fireworksParticles = particles.filter(p => p.alpha > 0.02);
+    fireworksParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.06;
+        p.vx *= 0.99;
+        p.alpha -= 0.018;
+
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    if (fireworksParticles.length > 0 || fireworksBurstCount > 0) {
+        fireworksAnimationId = requestAnimationFrame(() => animateFireworks(canvas, ctx, fireworksParticles));
+    } else {
+        canvas.classList.add('hidden');
+        fireworksAnimationId = null;
+    }
+}
+
+function showMilestoneBanner(milestone) {
+    const banner = document.getElementById('milestone-banner');
+    if (!banner) return;
+
+    banner.textContent = `🎆 ${milestone} drankjes! 🎆`;
+    banner.classList.remove('hidden');
+    requestAnimationFrame(() => banner.classList.add('visible'));
+
+    setTimeout(() => {
+        banner.classList.remove('visible');
+        setTimeout(() => banner.classList.add('hidden'), 400);
+    }, 2800);
+}
+
+function launchFireworks(milestone) {
+    const canvas = document.getElementById('fireworks-canvas');
+    if (!canvas) return;
+
+    if (fireworksAnimationId) cancelAnimationFrame(fireworksAnimationId);
+    if (fireworksBurstTimer) clearInterval(fireworksBurstTimer);
+
+    resizeFireworksCanvas(canvas);
+    const ctx = canvas.getContext('2d');
+    canvas.classList.remove('hidden');
+
+    fireworksParticles = [];
+    fireworksBurstCount = 6;
+    showMilestoneBanner(milestone);
+
+    createFireworkBurst(canvas, fireworksParticles);
+    animateFireworks(canvas, ctx, fireworksParticles);
+
+    fireworksBurstTimer = setInterval(() => {
+        fireworksBurstCount -= 1;
+        if (fireworksBurstCount <= 0) {
+            clearInterval(fireworksBurstTimer);
+            fireworksBurstTimer = null;
+            return;
+        }
+        createFireworkBurst(canvas, fireworksParticles);
+    }, 450);
+}
+
 function updateTotalPintsCounter() {
-    const total = transactions.reduce((sum, tx) => sum + (tx.type !== 'leeggoed' ? tx.recipients.length : 0), 0);
+    const total = getTotalDrinks();
     const counter = DOM.totalPintsCounter();
     if (counter) counter.innerHTML = `<span class='text-5xl'>🍺</span><span>${total} Drankjes besteld</span>`;
+    checkDrinkMilestone(total);
 }
 
 async function resetAllBalances() {
@@ -323,6 +446,11 @@ async function initializeApp() {
         await ensureFestival2026Ready();
         await setupFirebaseListeners();
         setupEventListeners();
+
+        const fireworksCanvas = document.getElementById('fireworks-canvas');
+        if (fireworksCanvas) {
+            window.addEventListener('resize', () => resizeFireworksCanvas(fireworksCanvas));
+        }
     } catch (error) {
         console.error('Initialization crash:', error);
     }
