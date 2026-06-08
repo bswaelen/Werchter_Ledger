@@ -132,8 +132,8 @@ function renderMemberBoard() {
     const renderCard = (m) => {
         const emojis = { Giver: '🎉', Receiver: '🛑', Balanced: '⚖️' };
         const statusText = m.status === 'Giver' 
-            ? `Krijgt terug (${m.net > 0 ? '+' : ''}${m.net.toFixed(2)} tkn)`
-            : m.status === 'Receiver' ? `Moet betalen (${m.net.toFixed(2)} tkn)` : 'In balans (0)';
+            ? `Ne Gever (${m.net > 0 ? '+' : ''}${m.net.toFixed(2)} tkn)`
+            : m.status === 'Receiver' ? `In schuld (${m.net.toFixed(2)} tkn)` : 'In balans (0)';
 
         return `
             <div class="bg-gray-800 rounded-xl p-4 shadow-lg mb-2">
