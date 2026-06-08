@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="nl" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Werchter '25 Ledger</title>
+    <title>Werchter 2026 Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
@@ -11,153 +11,128 @@
 <body class="bg-gray-900 text-white antialiased">
 
     <div id="app" class="max-w-md mx-auto p-4 min-h-screen">
-        <!-- Header -->
         <header class="text-center py-6">
             <img src="assets/Rock Werchter white logo.png" alt="Werchter Logo" class="mx-auto w-64 sm:w-80 mb-3" />
         </header>
 
-        <!-- Main Content: Member Status Board -->
         <main id="member-board" class="space-y-3">
-            <!-- Members will be dynamically inserted here -->
-        </main>
-        <div id="total-pints-counter" class="flex items-center justify-center my-6 text-3xl font-bold text-yellow-400 space-x-3">
-            <!-- Hier komt de teller -->
-        </div>
-        <div class="max-w-md mx-auto mb-4">
+            </main>
+        
+        <div id="total-pints-counter" class="flex items-center justify-center my-6 text-3xl font-bold text-yellow-400 space-x-3"></div>
+        
+        <div class="max-w-md mx-auto mb-4 space-y-2">
             <button id="admin-btn" class="w-full bg-gray-700 hover:bg-yellow-400 text-white hover:text-gray-900 font-bold py-3 px-4 rounded-lg transition border-2 border-gray-600 hover:border-yellow-400">
-                Admin
+                Admin Beheer
             </button>
-            <a href="report25.html" target="_blank" id="report-btn" class="w-full bg-emerald-400 hover:bg-emerald-500 text-emerald-900 font-bold py-3 px-4 rounded-lg transition text-center block mt-2">Report '25</a>
+            <a href="report25.html" target="_blank" id="report-btn" class="w-full bg-emerald-400 hover:bg-emerald-500 text-emerald-900 font-bold py-3 px-4 rounded-lg transition text-center block">Report '25/'26</a>
         </div>
-        <!-- Footer with Action Button -->
-        <footer class="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 bg-opacity-80 backdrop-blur-sm">
+
+        <footer class="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 bg-opacity-80 backdrop-blur-sm z-40">
             <div class="max-w-md mx-auto">
-                <button id="log-purchase-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-4 rounded-xl shadow-lg transition-transform transform hover:scale-105 mb-2">
-                    Pinten, graaf!
+                <button id="log-purchase-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-4 rounded-xl shadow-lg transition-transform transform hover:scale-105">
+                    Pinten, graaf! 🍺
                 </button>
             </div>
         </footer>
 
-        <!-- Spacer to prevent content from being hidden behind the footer -->
         <div class="h-24"></div>
     </div>
 
-    <!-- Admin Password Modal -->
     <div id="admin-password-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
+        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm">
             <div class="p-6">
-                <h3 class="text-2xl font-bold text-center mb-6">Admin Access</h3>
+                <h3 class="text-2xl font-bold text-center mb-6">Admin Toegang</h3>
                 <div class="mb-6">
-                    <label for="admin-password" class="block text-sm font-medium text-gray-400 mb-2">Enter Admin Password</label>
+                    <label for="admin-password" class="block text-sm font-medium text-gray-400 mb-2">Voer Admin Wachtwoord in</label>
                     <input type="password" id="admin-password" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
                 </div>
             </div>
             <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex space-x-3">
-                <button id="admin-cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Cancel</button>
-                <button id="admin-confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">Access Admin</button>
+                <button id="admin-cancel-btn" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg">Annuleer</button>
+                <button id="admin-confirm-btn" class="w-full bg-yellow-400 text-gray-900 font-bold py-3 px-4 rounded-lg">Inloggen</button>
             </div>
         </div>
     </div>
 
-    <!-- Admin Panel Modal -->
     <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
+        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm max-h-[90vh] overflow-y-auto">
             <div class="p-6">
                 <h3 class="text-2xl font-bold text-center mb-6">Admin Panel</h3>
                 
-                <!-- Member Management -->
                 <div class="mb-6">
-                    <h4 class="text-lg font-semibold mb-3">Manage Members</h4>
-                    <div id="members-list" class="space-y-2">
-                        <!-- Members will be listed here -->
-                    </div>
-                    <button id="add-member-btn" class="mt-3 w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition">
-                        Add New Member
-                    </button>
+                    <h4 class="text-lg font-semibold mb-3 text-yellow-400">Ledenbeheer</h4>
+                    <div id="members-list" class="space-y-2"></div>
+                    <button id="add-member-btn" class="mt-3 w-full bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">Nieuw Lid Toevoegen</button>
                 </div>
 
-                <!-- Transaction History -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-3 text-yellow-400">Recente Loggeschiedenis</h4>
+                    <div id="transactions-list" class="space-y-1 max-h-40 overflow-y-auto bg-gray-900 p-2 rounded-lg"></div>
+                </div>
             </div>
-            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl">
-                <button id="admin-panel-close-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Close</button>
-                <button id="reset-balances-btn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition mt-3">Reset alle saldi</button>
+            <div class="bg-gray-700 px-6 py-4 rounded-b-2xl space-y-2">
+                <button id="admin-panel-close-btn" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg">Sluiten</button>
+                <button id="reset-balances-btn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg">Reset alle saldi</button>
             </div>
         </div>
     </div>
 
-    <!-- Add Member Modal -->
     <div id="add-member-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
+        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm">
             <div class="p-6">
-                <h3 class="text-2xl font-bold text-center mb-6">Add New Member</h3>
-                
-                <div class="mb-6">
-                    <label for="new-member-name" class="block text-sm font-medium text-gray-400 mb-2">Name</label>
-                    <input type="text" id="new-member-name" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
+                <h3 class="text-2xl font-bold text-center mb-6">Nieuw Lid Toevoegen</h3>
+                <div class="mb-4">
+                    <label for="new-member-name" class="block text-sm font-medium text-gray-400 mb-2">Naam</label>
+                    <input type="text" id="new-member-name" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3">
                 </div>
-
                 <div class="mb-6">
-                    <label for="new-member-role" class="block text-sm font-medium text-gray-400 mb-2">Role</label>
-                    <select id="new-member-role" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
+                    <label for="new-member-role" class="block text-sm font-medium text-gray-400 mb-2">Rol</label>
+                    <select id="new-member-role" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3">
                         <option value="Core">Core Member</option>
                         <option value="Guest">Guest</option>
                     </select>
                 </div>
             </div>
             <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex space-x-3">
-                <button id="add-member-cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition">Cancel</button>
-                <button id="add-member-confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">Add Member</button>
+                <button id="add-member-cancel-btn" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-lg">Annuleer</button>
+                <button id="add-member-confirm-btn" class="w-full bg-yellow-400 text-gray-900 font-bold py-3 px-4 rounded-lg">Toevoegen</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal for Logging a Purchase -->
     <div id="purchase-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm transform transition-all">
+        <div class="bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm">
             <div class="p-6">
-                <h3 class="text-2xl font-bold text-center mb-6">Nieuw rondje</h3>
+                <h3 class="text-2xl font-bold text-center mb-6">Nieuw Rondje / Leeggoed</h3>
                 
-                <!-- Payer Selection -->
-                <div class="mb-6">
-                    <label for="payer" class="block text-sm font-medium text-gray-400 mb-2">Wie betaalt?</label>
-                    <select id="payer" name="payer" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 focus:ring-yellow-400 focus:border-yellow-400">
-                        <!-- Payer options will be dynamically inserted here -->
-                    </select>
+                <div class="mb-4">
+                    <label for="payer" class="block text-sm font-medium text-gray-400 mb-2">Wie haalt/betaalt?</label>
+                    <select id="payer" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3"></select>
                 </div>
                 
-                <!-- Quantity -->
-                <div class="mb-6">
-                    <label for="quantity" class="block text-sm font-medium text-gray-400 mb-2">Aantal bekers</label>
-                    <select id="quantity" name="quantity" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 text-center text-lg focus:ring-yellow-400 focus:border-yellow-400">
-                        <!-- Opties 1 t/m 20 -->
-                    </select>
+                <div class="mb-4">
+                    <label for="quantity" class="block text-sm font-medium text-gray-400 mb-2">Aantal bekers (Leeggoed/Consumpties)</label>
+                    <select id="quantity" class="w-full bg-gray-700 border-gray-600 text-white rounded-lg p-3 text-center text-lg"></select>
                 </div>
 
-                <!-- Recipients Selection -->
-                <div class="mb-6">
-                    <label for="recipients-list" class="block text-sm font-medium text-gray-400 mb-2">Voor wie?</label>
-                    <div id="recipients-list" class="modal-content max-h-48 overflow-y-auto space-y-2 p-3 bg-gray-900 rounded-lg">
-                        <!-- Recipient checkboxes will be dynamically inserted here -->
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Voor wie? (Leeglaten voor enkel leeggoed)</label>
+                    <div id="recipients-list" class="modal-content max-h-40 overflow-y-auto space-y-1 p-2 bg-gray-900 rounded-lg"></div>
                 </div>
-
             </div>
             
-            <!-- Modal Actions -->
             <div class="bg-gray-700 px-6 py-4 rounded-b-2xl flex flex-col space-y-2">
-                <button id="cancel-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition mb-1">Cancel</button>
-                <button id="confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition mb-1">En gaan!</button>
-                <button id="extra-btn" class="w-full bg-blue-300 hover:bg-blue-400 text-blue-900 font-bold py-3 px-4 rounded-lg transition">Enkel leeggoed</button>
+                <button id="confirm-btn" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition">En gaan! 🚀</button>
+                <button id="extra-btn" class="w-full bg-blue-300 hover:bg-blue-400 text-blue-900 font-bold py-3 px-4 rounded-lg transition">Enkel leeggoed 🥤</button>
+                <button id="cancel-btn" class="w-full bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition">Annuleer</button>
             </div>
         </div>
     </div>
 
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot, addDoc, getDocs, doc, deleteDoc, updateDoc, where, query } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAORWEOq8PAVA-GMywLZpl-SqBoPa7KzBI",
             authDomain: "werchter-ledger.firebaseapp.com",
@@ -167,25 +142,12 @@
             appId: "1:327978781720:web:ba7774b24426b9aebd476d"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Export Firebase functionality
-        window.initializeFirebase = async () => {
-            return {
-                db,
-                collection,
-                onSnapshot,
-                addDoc,
-                getDocs,
-                doc,
-                deleteDoc,
-                updateDoc,
-                where,
-                query
-            };
-        };
+        window.initializeFirebase = async () => ({
+            db, collection, onSnapshot, addDoc, getDocs, doc, deleteDoc, updateDoc, where, query
+        });
     </script>
     <script type="module" src="app.js"></script>
 </body>

@@ -21,6 +21,8 @@ Een real-time drankjes- en leeggoedtracker voor Werchter Festival 2025. Deze web
   - **Twee actieknoppen in de aankoop-modal:**
     - **En gaan!** (gele knop): voor het loggen van een normaal rondje (minstens één ontvanger vereist)
     - **Enkel leeggoed** (lichtblauwe knop): voor het inleveren van alleen leeggoed (géén ontvangers, alleen bekers > 0)
+  - **Nieuw: 'Report '25' knop op het hoofdscherm:**
+    - Opent een uitgebreid festivalrapport met statistieken, ruwe data en een visuele eindafrekening (report25.html).
 
 ## Belangrijkste updates
 
@@ -41,6 +43,7 @@ Een real-time drankjes- en leeggoedtracker voor Werchter Festival 2025. Deze web
 - Gebruik **En gaan!** voor een normaal rondje (minstens één ontvanger).
 - Gebruik **Enkel leeggoed** als je alleen bekers inlevert (géén ontvangers, aantal bekers > 0).
 - Je saldo, aantal bestelde pinten en verdiende coins worden automatisch bijgewerkt.
+- Klik op **Report '25** op het hoofdscherm voor een overzicht van alle statistieken, ruwe data en de eindafrekening van het festival.
 
 ### Voor admins
 - Klik op **Admin** en voer het wachtwoord in.
