@@ -24,7 +24,7 @@
             <button id="admin-btn" class="w-full bg-gray-700 hover:bg-yellow-400 text-white hover:text-gray-900 font-bold py-3 px-4 rounded-lg transition border-2 border-gray-600 hover:border-yellow-400">
                 Admin Beheer
             </button>
-            <a href="report25.html" target="_blank" id="report-btn" class="w-full bg-emerald-400 hover:bg-emerald-500 text-emerald-900 font-bold py-3 px-4 rounded-lg transition text-center block">Report '25/'26</a>
+            <a href="report25.html" target="_blank" id="report-btn" class="w-full bg-emerald-400 hover:bg-emerald-500 text-emerald-900 font-bold py-3 px-4 rounded-lg transition text-center block">Report '25</a>
         </div>
 
         <footer class="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 bg-opacity-80 backdrop-blur-sm z-40">
@@ -131,7 +131,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, getDocs, doc, deleteDoc, updateDoc, where, query } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, getDocs, getDoc, setDoc, doc, deleteDoc, updateDoc, where, query } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAORWEOq8PAVA-GMywLZpl-SqBoPa7KzBI",
@@ -146,7 +146,7 @@
         const db = getFirestore(app);
 
         window.initializeFirebase = async () => ({
-            db, collection, onSnapshot, addDoc, getDocs, doc, deleteDoc, updateDoc, where, query
+            db, collection, onSnapshot, addDoc, getDocs, getDoc, setDoc, doc, deleteDoc, updateDoc, where, query
         });
     </script>
     <script type="module" src="app.js"></script>

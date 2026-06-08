@@ -1,19 +1,14 @@
-// --- 1. INITIAL DATA ---
-const initialMembers = [
-    { id: '1', name: 'Sarah', role: 'Core' },
-    { id: '2', name: 'Thomas', role: 'Core' },
-    { id: '3', name: 'Elise', role: 'Core' },
-    { id: '4', name: 'Mike', role: 'Core' },
-    { id: '5', name: 'Chloe (Guest)', role: 'Guest' }
-];
-
-let transactions = [];
-let members = [...initialMembers];
-
+// --- 1. CONFIG ---
+const FESTIVAL_YEAR = 2026;
 const ADMIN_PASSWORD = 'werchter2026';
 
+// Oude dummy seed-namen (Sarah, Thomas, Elise, Mike, Chloe, David) — niet meer automatisch aangemaakt
+
+let transactions = [];
+let members = [];
+
 // --- 2. STATE & DOM CACHE ---
-let db, collection, onSnapshot, addDoc, getDocs, doc, deleteDoc, query, where;
+let db, collection, onSnapshot, addDoc, getDocs, getDoc, setDoc, doc, deleteDoc, query, where;
 
 const DOM = {
     memberBoard: () => document.getElementById('member-board'),
@@ -29,6 +24,30 @@ const DOM = {
 };
 
 // --- 3. FIREBASE INTEGRATION ---
+async function ensureFestival2026Ready() {
+    const configRef = doc(db, 'config', 'app');
+    const configSnap = await getDoc(configRef);
+
+    if (configSnap.exists() && configSnap.data().festivalYear === FESTIVAL_YEAR) {
+        return;
+    }
+
+    const [membersSnapshot, transactionsSnapshot] = await Promise.all([
+        getDocs(collection(db, 'members')),
+        getDocs(collection(db, 'transactions'))
+    ]);
+
+    await Promise.all([
+        ...membersSnapshot.docs.map(d => deleteDoc(doc(db, 'members', d.id))),
+        ...transactionsSnapshot.docs.map(d => deleteDoc(doc(db, 'transactions', d.id)))
+    ]);
+
+    await setDoc(configRef, {
+        festivalYear: FESTIVAL_YEAR,
+        migratedAt: Date.now()
+    });
+}
+
 async function setupFirebaseListeners() {
     try {
         const membersRef = collection(db, 'members');
@@ -43,13 +62,6 @@ async function setupFirebaseListeners() {
             transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderAll();
         });
-
-        const membersSnapshot = await getDocs(membersRef);
-        if (membersSnapshot.empty) {
-            for (const member of initialMembers) {
-                await addDoc(membersRef, { name: member.name, role: member.role, timestamp: Date.now() });
-            }
-        }
     } catch (error) {
         console.error("Firebase listener status error:", error);
     }
@@ -154,16 +166,29 @@ function renderMemberBoard() {
     };
 
     let html = '';
-    if (coreMembers.length > 0) {
-        html += `<h2 class="text-xl font-bold text-yellow-400 mb-2">Core Members</h2>${coreMembers.map(renderCard).join('')}`;
-    }
-    if (guests.length > 0) {
-        html += `<h2 class="text-xl font-bold text-yellow-400 mb-2 mt-4">Guests</h2>${guests.map(renderCard).join('')}`;
+    if (members.length === 0) {
+        html = `
+            <div class="bg-gray-800 rounded-xl p-6 text-center text-gray-400">
+                <p class="text-lg font-medium text-white mb-2">Welkom bij Werchter ${FESTIVAL_YEAR}</p>
+                <p>Nog geen leden. Voeg je vriendengroep toe via <span class="text-yellow-400">Admin Beheer</span>.</p>
+            </div>
+        `;
+    } else {
+        if (coreMembers.length > 0) {
+            html += `<h2 class="text-xl font-bold text-yellow-400 mb-2">Core Members</h2>${coreMembers.map(renderCard).join('')}`;
+        }
+        if (guests.length > 0) {
+            html += `<h2 class="text-xl font-bold text-yellow-400 mb-2 mt-4">Guests</h2>${guests.map(renderCard).join('')}`;
+        }
     }
     board.innerHTML = html;
 }
 
 function openPurchaseModal() {
+    if (members.length === 0) {
+        return alert('Voeg eerst leden toe via Admin Beheer.');
+    }
+
     showModal('purchase-modal');
     
     const qtySelect = DOM.quantitySelect();
@@ -291,11 +316,14 @@ async function initializeApp() {
         onSnapshot = firebase.onSnapshot;
         addDoc = firebase.addDoc;
         getDocs = firebase.getDocs;
+        getDoc = firebase.getDoc;
+        setDoc = firebase.setDoc;
         doc = firebase.doc;
         deleteDoc = firebase.deleteDoc;
         query = firebase.query;
         where = firebase.where;
 
+        await ensureFestival2026Ready();
         await setupFirebaseListeners();
         setupEventListeners();
     } catch (error) {
