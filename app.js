@@ -1,8 +1,7 @@
+
 // --- 1. CONFIG ---
 const FESTIVAL_YEAR = 2026;
 const ADMIN_PASSWORD = 'werchter2026';
-
-// Oude dummy seed-namen (Sarah, Thomas, Elise, Mike, Chloe, David) — niet meer automatisch aangemaakt
 
 let transactions = [];
 let members = [];
@@ -67,55 +66,48 @@ async function setupFirebaseListeners() {
     }
 }
 
-// --- 4. WATERDICHTE REKENLOGICA (NETTO-KOST ENGINE) ---
+// --- 4. GESTROOMLIJNDE SPREADSHEET ENGINE (OUT-OF-POCKET) ---
 function getMemberStats(memberId) {
-    let bought = 0;
-    let received = 0;
-    let cupsReturned = 0;
-    let net = 0;
-
-    if (!members || members.length === 0) {
-        return { bought, received, net: 0, status: 'Balanced', coins: 0 };
-    }
-
-    const numMembers = members.length;
+    let totalPaidActual = 0;   // Totale out-of-pocket tokens betaald
+    let totalDrinksDrank = 0;  // Aantal consumpties genuttigd
+    let cupsReturnedByMe = 0;  // Aantal ingeleverde bekers
 
     transactions.forEach(tx => {
-        const qty = tx.quantity || 0;
-        
-        // 1. Verwerk de Drankjes (Rondjes)
-        if (tx.type !== 'leeggoed' && tx.recipients) {
-            if (tx.payer === memberId) {
-                const drinksForOthers = tx.recipients.filter(r => r !== memberId).length;
-                bought += drinksForOthers;
-                net += drinksForOthers * 1.0; // +1.0 credit per gegeven consumptie aan een ander
-            }
-            
-            if (tx.recipients.includes(memberId) && tx.payer !== memberId) {
-                received += 1;
-                net -= 1.0; // -1.0 kosten per ontvangen drankje
-            }
+        const beersBought = tx.type === 'leeggoed' ? 0 : (tx.recipients ? tx.recipients.length : 0);
+        const cupsReturned = tx.quantity || 0;
+
+        // Als deze persoon de transactie heeft gedaan, bereken out-of-pocket tokens
+        if (tx.payer === memberId) {
+            // SPREADSHEET FORMULE: =(Beers Bought * 1.2) - (Cups Returned * 0.2)
+            const outOfPocket = (beersBought * 1.2) - (cupsReturned * 0.2);
+            totalPaidActual += outOfPocket;
+            cupsReturnedByMe += cupsReturned;
         }
 
-        // 2. Verwerk het Leeggoed (De Beker-Correctie)
-        // Bekers verminderen de out-of-pocket credit van de gever.
-        if (qty > 0) {
-            if (tx.payer === memberId) {
-                cupsReturned += qty;
-                net -= qty * 0.2; // Aftrek van je credit: je hebt met groepsbekers betaald!
-            }
-            // De waarde van de ingeleverde bekers wordt als compensatie verdeeld over de hele groep
-            net += (qty * 0.2) / numMembers;
+        // Telt hoe vaak deze persoon een drankje heeft ontvangen/gedronken
+        if (tx.type !== 'leeggoed' && tx.recipients) {
+            const drankInThisRound = tx.recipients.filter(id => id === memberId).length;
+            totalDrinksDrank += drankInThisRound;
         }
     });
 
-    const coins = cupsReturned * 0.2;
-    
+    // SPREADSHEET FORMULE: Fair Share Cost = (Drinks Drank * 1.0)
+    const fairShareCost = totalDrinksDrank * 1.0;
+
+    // SPREADSHEET FORMULE: Final Balance = Paid - Fair Share
+    const net = totalPaidActual - fairShareCost;
+
     let status = 'Balanced';
     if (net > 0.01) status = 'Giver';
     else if (net < -0.01) status = 'Receiver';
 
-    return { bought, received, net, status, coins };
+    return {
+        bought: totalPaidActual,     // Gekoppeld aan UI "💰 Paid"
+        received: totalDrinksDrank,  // Gekoppeld aan UI "🍺 Drank"
+        net: net,
+        status: status,
+        coins: cupsReturnedByMe * 0.2
+    };
 }
 
 // --- 5. RENDERING & UI ---
@@ -140,8 +132,8 @@ function renderMemberBoard() {
     const renderCard = (m) => {
         const emojis = { Giver: '🎉', Receiver: '🛑', Balanced: '⚖️' };
         const statusText = m.status === 'Giver' 
-            ? `${m.net > 5 ? 'Gulle gever' : 'Gever'} (${m.net > 0 ? '+' : ''}${m.net.toFixed(1)})`
-            : m.status === 'Receiver' ? `Ontvanger (${m.net.toFixed(1)})` : 'In balans (0)';
+            ? `Krijgt terug (${m.net > 0 ? '+' : ''}${m.net.toFixed(2)} tkn)`
+            : m.status === 'Receiver' ? `Moet betalen (${m.net.toFixed(2)} tkn)` : 'In balans (0)';
 
         return `
             <div class="bg-gray-800 rounded-xl p-4 shadow-lg mb-2">
@@ -154,10 +146,9 @@ function renderMemberBoard() {
                         </div>
                     </div>
                     <div class="text-right text-sm sm:text-base">
-                        <div class="flex items-center justify-end space-x-2">
-                            <span class="text-green-400" title="Gegeven aan anderen">💸 ${m.bought}</span>
-                            <span class="text-yellow-400 flex items-center" title="Coins via leeggoed">🥤 ${m.coins.toFixed(1)}</span>
-                            <span class="text-red-400" title="Ontvangen van anderen">🍺 ${m.received}</span>
+                        <div class="flex flex-col items-end space-y-0.5">
+                            <span class="text-green-400 font-medium" title="Werkelijk betaald (Out-of-pocket)">💰 Paid: ${m.bought.toFixed(1)} tkn</span>
+                            <span class="text-blue-400 font-medium" title="Aantal pinten gedronken">🍺 Drank: ${m.received}</span>
                         </div>
                     </div>
                 </div>
@@ -259,7 +250,7 @@ function renderAdminPanel() {
             <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg mb-2">
                 <div>
                     <p class="font-medium">${m.name} (${m.role})</p>
-                    <p class="text-sm ${net < 0 ? 'text-red-400' : 'text-green-400'}">Saldo: ${net > 0 ? '+' : ''}${net.toFixed(1)}</p>
+                    <p class="text-sm ${net < 0 ? 'text-red-400' : 'text-green-400'}">Saldo: ${net > 0 ? '+' : ''}${net.toFixed(2)} tkn</p>
                 </div>
                 <button class="text-red-400 hover:text-red-300 text-xl" onclick="window.deleteMember('${m.id}', '${m.name}')">🗑️</button>
             </div>
@@ -270,12 +261,18 @@ function renderAdminPanel() {
         const payer = members.find(m => m.id === tx.payer);
         const payerName = payer ? payer.name : 'Onbekend';
         const date = new Date(tx.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const cups = tx.quantity || 0;
         
         if (tx.type === 'leeggoed') {
-            return `<div class="bg-gray-700 p-2 rounded mb-1 text-xs text-blue-300">[${date}] ${payerName} leverde ${tx.quantity} losse bekers in.</div>`;
+            const actualPaid = (0 * 1.2) - (cups * 0.2);
+            return `<div class="bg-gray-700 p-2 rounded mb-1 text-xs text-blue-300">[${date}] ${payerName} leverde ${cups} losse bekers in (Tokens: ${actualPaid.toFixed(1)}).</div>`;
         }
+        
+        const beers = tx.recipients ? tx.recipients.length : 0;
+        const actualPaid = (beers * 1.2) - (cups * 0.2);
         const recNames = tx.recipients.map(id => members.find(m => m.id === id)?.name || '?').join(', ');
-        return `<div class="bg-gray-700 p-2 rounded mb-1 text-xs">[${date}] ${payerName} gaf rondje (${tx.quantity} bekers mee) aan: ${recNames}</div>`;
+        
+        return `<div class="bg-gray-700 p-2 rounded mb-1 text-xs">[${date}] ${payerName} kocht ${beers} pinten, leverde ${cups} bekers in. Out-of-pocket: ${actualPaid.toFixed(1)} tkn. Voor: ${recNames}</div>`;
     }).join('');
 }
 
@@ -332,7 +329,6 @@ async function initializeApp() {
 }
 
 function setupEventListeners() {
-    // Alle event listeners netjes gecentraliseerd gekoppeld (voorkomt dubbele triggers)
     document.getElementById('log-purchase-btn').addEventListener('click', openPurchaseModal);
     document.getElementById('cancel-btn').addEventListener('click', () => hideModal('purchase-modal'));
     document.getElementById('confirm-btn').addEventListener('click', handlePurchase);
